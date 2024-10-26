@@ -22,6 +22,9 @@ connectDB();
 // Connect to redis
 connectToRedis();
 
+//Check Node version
+console.log("Running Node.js version:", process.version);
+
 // API route
 app.use('/api/posts', postsRouter);
 app.use('/api/auth', authRouter);
