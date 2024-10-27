@@ -145,6 +145,7 @@ pipeline{
                         sh "docker push rahulsinghpilkh/devpipeline-frontend:latest"
                     }
                 }
+            }
         }
         stage("TRIVY"){
             steps{
