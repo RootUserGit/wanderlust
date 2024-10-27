@@ -10,6 +10,7 @@ pipeline{
     environment {
         SCANNER_HOME=tool 'sonar-scanner'
         PROJECT_NAME = "${params.Project_name}"
+        SONAR_TOKEN = credentials('jenkins')
     }
     stages {
         stage('Clean Workspace') {
@@ -47,7 +48,8 @@ pipeline{
                     -Dsonar.projectKey=wanderlust \
                     -Dsonar.sources=. \
                     -Dsonar.host.url=${SONAR_HOST_URL} \
-                    -Dsonar.login=squ_611099560cc699919a0b9a4ebfe035139188dc30'''
+                    -Dsonar.login=${SONAR_TOKEN} \
+                    -X '''
                 }
             }
         }
