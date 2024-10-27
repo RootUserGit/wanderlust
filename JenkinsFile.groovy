@@ -4,8 +4,12 @@ pipeline{
         jdk 'jdk 17'
         nodejs 'node21'
     }
+   parameters {
+        string(name: 'Project_name', defaultValue: 'wanderlust', description: 'Project name')
+    }
     environment {
         SCANNER_HOME=tool 'sonar-scanner'
+        PROJECT_NAME = "${params.Project_name}"
     }
     stages {
         stage('Clean Workspace') {
@@ -58,19 +62,17 @@ pipeline{
         stage('Docker-compose Build') {
             steps {
                 script {
-                    timeout(time: 5, unit: 'MINUTES') { // Timeout set to 5 minute
-                    // Forcefully remove any running containers by name                    
-                    sh '''docker rm -f mongo frontend backend redis || true'''
-                    
-                    // Remove images forcefully (optional, as you already have this)
-                    sh '''docker rmi node mongo rahulsinghpilkh/devpipeline-frontend gpt-pipeline-frontend rahulsinghpilkh/devpipeline-backend gpt-pipeline-backend redis --force || true'''
-                    
-                    // Ensure all networks and containers from docker-compose are down
-                    sh '''docker-compose down --remove-orphans || true'''
-                    
-                    // Start containers with Docker Compose
-                    sh 'node --version'
-                    sh 'docker-compose -f docker-compose.yml up -d --force-recreate'
+                    timeout(time: 5, unit: 'MINUTES') {
+                        // Cleanup containers and images with dynamic names
+                        sh "docker rm -f ${PROJECT_NAME}_mongo ${PROJECT_NAME}_frontend ${PROJECT_NAME}_backend ${PROJECT_NAME}_redis || true"
+                        sh "docker rmi ${PROJECT_NAME}_backend ${PROJECT_NAME}_frontend --force || true"
+                        
+                        // Ensure all networks and containers are down
+                        sh "docker-compose down --remove-orphans || true"
+
+                        // Build and recreate containers using Docker Compose
+                        sh "docker-compose build"
+                        sh "docker-compose -f docker-compose.yml up -d --force-recreate"
                     }
                 }
             }

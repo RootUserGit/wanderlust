@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   mongodb:
-    container_name: mongo
+    container_name: "${PROJECT_NAME}_mongo"
     image: mongo:latest
     volumes:
       - ./backend/data:/data
@@ -10,7 +10,7 @@ services:
     init: true
 
   backend:
-    container_name: backend
+    container_name: "${PROJECT_NAME}_backend"
     build: ./backend
     env_file:
       - ./backend/.env.sample
@@ -21,7 +21,7 @@ services:
     init: true      
 
   frontend:
-    container_name: frontend
+    container_name: "${PROJECT_NAME}_frontend"
     build: ./frontend
     env_file:
       - ./frontend/.env.sample
@@ -30,7 +30,7 @@ services:
     init: true      
 
   redis:
-    container_name: redis
+    container_name: "${PROJECT_NAME}_redis"
     restart: unless-stopped
     image: redis:7.0.5-alpine 
     expose:
