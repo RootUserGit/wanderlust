@@ -27,6 +27,31 @@ pipeline{
                 sh "npm install"
             }
         }
+
+                // Fetch and Update SonarQube Instance IP
+        stage('Fetch and Update SonarQube IP') {
+            steps {
+                script {
+                    // Fetch the instance public IP using curl
+                    def publicIP = sh(script: "curl -s ifconfig.me -4", returnStdout: true).trim()
+                    
+                    // Update the SonarQube URL in the environment variable
+                    env.SONAR_HOST_URL = "http://${publicIP}:9000"
+                }
+            }
+        }
+        stage("Sonarqube Analysis ") {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner \
+                    -Dsonar.projectKey=wanderlust \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=${SONAR_HOST_URL} \
+                    -Dsonar.login=squ_611099560cc699919a0b9a4ebfe035139188dc30'''
+                }
+            }
+        }
+        
         stage("Sonarqube Analysis "){
             steps{
                 withSonarQubeEnv('sonar-server') {
