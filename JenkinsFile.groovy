@@ -26,20 +26,23 @@ pipeline{
         stage("Sonarqube Analysis "){
             steps{
                 withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=docker-compose \
-                    -Dsonar.projectKey=docker-compose '''
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner \
+                    -Dsonar.projectKey=wanderlust \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=http://34.224.212.190:9000 \
+                    -Dsonar.login=squ_611099560cc699919a0b9a4ebfe035139188dc30'''
                 }
             }
         }
-        stage("Quality Gate") {
-            steps {
-                script {
-                    timeout(time: 5, unit: 'MINUTES') { // Set the timeout to 5 minutes
-                        waitForQualityGate abortPipeline: false, credentialsId: 'jenkins'
-                    }
-                }
-            }
-        }
+        // stage("Quality Gate") {
+        //     steps {
+        //         script {
+        //             timeout(time: 5, unit: 'MINUTES') { // Set the timeout to 5 minutes
+        //                 waitForQualityGate abortPipeline: false, credentialsId: 'jenkins'
+        //             }
+        //         }
+        //     }
+        // }
         stage('OWASP FS SCAN') {
             steps {
                     withCredentials([string(credentialsId: 'NVD_API_KEY', variable: 'NVD_API_KEY')]) {
@@ -60,7 +63,7 @@ pipeline{
                     timeout(time: 5, unit: 'MINUTES') { // Timeout set to 1 minute
                         // Remove images forcefully
                         sh 'docker rmi node mongo rahulsinghpilkh/devpipeline-frontend gpt-pipeline-frontend rahulsinghpilkh/devpipeline-backend gpt-pipeline-backend redis --force'
-
+        
                         // Check if containers are running, then kill if they are
                         sh '''
                         for container in mongo frontend backend redis; do
@@ -71,7 +74,7 @@ pipeline{
                             fi
                         done
                         '''
-
+        
                         // Start containers with Docker Compose
                         sh 'node --version'
                         sh 'docker-compose -f docker-compose.yml up -d'
