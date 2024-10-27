@@ -51,18 +51,7 @@ pipeline{
                 }
             }
         }
-        
-        stage("Sonarqube Analysis "){
-            steps{
-                withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner \
-                    -Dsonar.projectKey=wanderlust \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=http://34.224.212.190:9000 \
-                    -Dsonar.login=squ_611099560cc699919a0b9a4ebfe035139188dc30'''
-                }
-            }
-        }
+
         // stage("Sonar Quality Gate Scan"){
         //     steps{
         //         timeout(time: 2, unit: "MINUTES"){
