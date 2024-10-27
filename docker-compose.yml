@@ -11,6 +11,7 @@ services:
 
   backend:
     container_name: "${PROJECT_NAME}_backend"
+    image: "${PROJECT_NAME}_backend"
     build: ./backend
     env_file:
       - ./backend/.env.sample
@@ -22,6 +23,7 @@ services:
 
   frontend:
     container_name: "${PROJECT_NAME}_frontend"
+    image: "${PROJECT_NAME}_frontend"
     build: ./frontend
     env_file:
       - ./frontend/.env.sample
