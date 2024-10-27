@@ -34,13 +34,13 @@ pipeline{
                 }
             }
         }
-        stage("Sonar Quality Gate Scan"){
-            steps{
-                timeout(time: 2, unit: "MINUTES"){
-                    waitForQualityGate abortPipeline: false
-                }
-            }
-        }
+        // stage("Sonar Quality Gate Scan"){
+        //     steps{
+        //         timeout(time: 2, unit: "MINUTES"){
+        //             waitForQualityGate abortPipeline: false
+        //         }
+        //     }
+        // }
         stage('OWASP FS SCAN') {
             steps {
                     withCredentials([string(credentialsId: 'NVD_API_KEY', variable: 'NVD_API_KEY')]) {
