@@ -83,18 +83,18 @@ pipeline{
                     
                     // Debug output to confirm IP fetched correctly
                     echo "Fetched public IP: ${publicIP}"
-                    
+
                     // Replace the IP in the frontend .env.sample file
                     sh """
-                        sed -i 's|MONGODB_URI="mongodb://.*:27017/wanderlust"|MONGODB_URI="mongodb://${publicIP}:27017/wanderlust"|' frontend/.env.sample
-                        sed -i 's|REDIS_URL=".*:6379"|REDIS_URL="${publicIP}:6379"|' frontend/.env.sample
+                        perl -pi -e 's|MONGODB_URI="mongodb://.*:27017/wanderlust"|MONGODB_URI="mongodb://${publicIP}:27017/wanderlust"|' frontend/.env.sample
+                        perl -pi -e 's|REDIS_URL=".*:6379"|REDIS_URL="${publicIP}:6379"|' frontend/.env.sample
                     """
                     
                     // Replace the IP in the backend .env.sample file
                     sh """
-                        sed -i 's|VITE_API_PATH="http://.*:5000"|VITE_API_PATH="http://${publicIP}:5000"|' backend/.env.sample
+                        perl -pi -e 's|VITE_API_PATH="http://.*:5000"|VITE_API_PATH="http://${publicIP}:5000"|' backend/.env.sample
                     """
-                    
+
                     // Optional: Output modified .env.sample files for debugging
                     sh "cat frontend/.env.sample"
                     sh "cat backend/.env.sample"
