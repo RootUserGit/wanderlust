@@ -58,16 +58,19 @@ pipeline{
         stage('Docker-compose Build') {
             steps {
                 script {
-                    timeout(time: 5, unit: 'MINUTES') { // Timeout set to 1 minute
-                        // Remove images forcefully
-                        sh 'docker rmi node mongo rahulsinghpilkh/devpipeline-frontend gpt-pipeline-frontend rahulsinghpilkh/devpipeline-backend gpt-pipeline-backend redis --force'
-        
-                        // Check if containers are running, then kill if they are
-                        sh '''docker-compose down --remove-orphans'''
-        
-                        // Start containers with Docker Compose
-                        sh 'node --version'
-                        sh 'docker-compose -f docker-compose.yml up -d --force-recreate'
+                    timeout(time: 5, unit: 'MINUTES') { // Timeout set to 5 minute
+                    // Forcefully remove any running containers by name                    
+                    sh '''docker rm -f mongo frontend backend redis || true'''
+                    
+                    // Remove images forcefully (optional, as you already have this)
+                    sh '''docker rmi node mongo rahulsinghpilkh/devpipeline-frontend gpt-pipeline-frontend rahulsinghpilkh/devpipeline-backend gpt-pipeline-backend redis --force || true'''
+                    
+                    // Ensure all networks and containers from docker-compose are down
+                    sh '''docker-compose down --remove-orphans || true'''
+                    
+                    // Start containers with Docker Compose
+                    sh 'node --version'
+                    sh 'docker-compose -f docker-compose.yml up -d --force-recreate'
                     }
                 }
             }
