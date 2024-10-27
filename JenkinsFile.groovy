@@ -78,15 +78,26 @@ pipeline{
         stage('Fetch and Update Instance IP') {
             steps {
                 script {
-                    // Fetch the instance public IP using curl ifconfig.me
+                    // Fetch the instance public IP using curl
                     def publicIP = sh(script: "curl -s ifconfig.me -4", returnStdout: true).trim()
                     
+                    // Debug output to confirm IP fetched correctly
+                    echo "Fetched public IP: ${publicIP}"
+                    
                     // Replace the IP in the frontend .env.sample file
-                    sh "sed -i 's|MONGODB_URI=\"mongodb://.*:27017/wanderlust\"|MONGODB_URI=\"mongodb://${publicIP}:27017/wanderlust\"|' frontend/.env.sample"
-                    sh "sed -i 's|REDIS_URL=\".*:6379\"|REDIS_URL=\"${publicIP}:6379\"|' frontend/.env.sample"
+                    sh """
+                        sed -i 's|MONGODB_URI=.*|MONGODB_URI="mongodb://${publicIP}:27017/wanderlust"|' frontend/.env.sample
+                        sed -i 's|REDIS_URL=.*|REDIS_URL="${publicIP}:6379"|' frontend/.env.sample
+                    """
                     
                     // Replace the IP in the backend .env.sample file
-                    sh "sed -i 's|VITE_API_PATH=\"http://.*:5000\"|VITE_API_PATH=\"http://${publicIP}:5000\"|' backend/.env.sample"
+                    sh """
+                        sed -i 's|VITE_API_PATH=.*|VITE_API_PATH="http://${publicIP}:5000"|' backend/.env.sample
+                    """
+                    
+                    // Optional: Output modified .env.sample files for debugging
+                    sh "cat frontend/.env.sample"
+                    sh "cat backend/.env.sample"
                 }
             }
         }
@@ -110,20 +121,22 @@ pipeline{
                 }
             }
         }
-        stage('Docker Login') {
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh """
-                        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD index.docker.io
-                        """
-                    }
-                }
-            }
-        }
+        // stage('Docker Login') {
+        //     steps {
+        //         script {
+        //             withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+        //                 sh """
+        //                 docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD index.docker.io
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
         stage('Docker-compose Push') {
             steps {
                 script {
+                    withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh ''' echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin || exit 1 '''
                         // Tag and push backend and frontend images
                         sh "docker tag ${PROJECT_NAME}_backend rahulsinghpilkh/devpipeline-backend:latest"
                         sh "docker tag ${PROJECT_NAME}_frontend rahulsinghpilkh/devpipeline-frontend:latest"
