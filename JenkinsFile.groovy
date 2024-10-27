@@ -71,8 +71,9 @@ pipeline{
                         sh "docker-compose down --remove-orphans || true"
 
                         // Build and recreate containers using Docker Compose
-                        sh "docker-compose build"
-                        sh "docker-compose -f docker-compose.yml up -d --force-recreate"
+                        // Set PROJECT_NAME in docker-compose commands
+                        sh "PROJECT_NAME=${PROJECT_NAME} docker-compose build"
+                        sh "PROJECT_NAME=${PROJECT_NAME} docker-compose -f docker-compose.yml up -d --force-recreate"
                     }
                 }
             }
