@@ -34,15 +34,13 @@ pipeline{
                 }
             }
         }
-        // stage("Quality Gate") {
-        //     steps {
-        //         script {
-        //             timeout(time: 5, unit: 'MINUTES') { // Set the timeout to 5 minutes
-        //                 waitForQualityGate abortPipeline: false, credentialsId: 'jenkins'
-        //             }
-        //         }
-        //     }
-        // }
+        stage("Sonar Quality Gate Scan"){
+            steps{
+                timeout(time: 2, unit: "MINUTES"){
+                    waitForQualityGate abortPipeline: false
+                }
+            }
+        }
         stage('OWASP FS SCAN') {
             steps {
                     withCredentials([string(credentialsId: 'NVD_API_KEY', variable: 'NVD_API_KEY')]) {
@@ -65,15 +63,7 @@ pipeline{
                         sh 'docker rmi node mongo rahulsinghpilkh/devpipeline-frontend gpt-pipeline-frontend rahulsinghpilkh/devpipeline-backend gpt-pipeline-backend redis --force'
         
                         // Check if containers are running, then kill if they are
-                        sh '''
-                        for container in mongo frontend backend redis; do
-                            if [ "$(docker ps -q -f name=$container)" ]; then
-                                docker kill $container
-                            else
-                                echo "Container $container is not running"
-                            fi
-                        done
-                        '''
+                        sh '''docker-compose down'''
         
                         // Start containers with Docker Compose
                         sh 'node --version'
