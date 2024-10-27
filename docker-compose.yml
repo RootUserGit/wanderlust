@@ -7,6 +7,7 @@ services:
       - ./backend/data:/data
     ports:
       - "27017:27017"
+    init: true
 
   backend:
     container_name: backend
@@ -17,6 +18,7 @@ services:
       - "5000:5000"
     depends_on:
       - mongodb
+    init: true      
 
   frontend:
     container_name: frontend
@@ -25,6 +27,7 @@ services:
       - ./frontend/.env.sample
     ports:
       - "5173:5173"
+    init: true      
 
   redis:
     container_name: redis
@@ -34,6 +37,7 @@ services:
         - 6379
     depends_on:
       - mongodb
+    init: true
 
 volumes:
   data:
