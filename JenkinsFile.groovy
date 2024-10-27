@@ -58,6 +58,22 @@ pipeline{
                 sh "trivy fs --format  table -o trivy-fs-report.html ."
             }
         }
+        // Fetch and Update the Ip of the instance 
+        stage('Fetch and Update Instance IP') {
+            steps {
+                script {
+                    // Fetch the instance public IP using curl ifconfig.me
+                    def publicIP = sh(script: "curl -s ifconfig.me -4", returnStdout: true).trim()
+                    
+                    // Replace the IP in the frontend .env.sample file
+                    sh "sed -i 's|MONGODB_URI=\"mongodb://.*:27017/wanderlust\"|MONGODB_URI=\"mongodb://${publicIP}:27017/wanderlust\"|' frontend/.env.sample"
+                    sh "sed -i 's|REDIS_URL=\".*:6379\"|REDIS_URL=\"${publicIP}:6379\"|' frontend/.env.sample"
+                    
+                    // Replace the IP in the backend .env.sample file
+                    sh "sed -i 's|VITE_API_PATH=\"http://.*:5000\"|VITE_API_PATH=\"http://${publicIP}:5000\"|' backend/.env.sample"
+                }
+            }
+        }
           // Docker Compose Build Stage with Timeout
         stage('Docker-compose Build') {
             steps {
