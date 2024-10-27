@@ -51,7 +51,7 @@ pipeline{
         }
         stage('TRIVY FS SCAN') {
             steps {
-                sh "trivy fs . > trivyfs.json"
+                sh "trivy fs --format  table -o trivy-fs-report.html ."
             }
         }
           // Docker Compose Build Stage with Timeout
@@ -63,11 +63,11 @@ pipeline{
                         sh 'docker rmi node mongo rahulsinghpilkh/devpipeline-frontend gpt-pipeline-frontend rahulsinghpilkh/devpipeline-backend gpt-pipeline-backend redis --force'
         
                         // Check if containers are running, then kill if they are
-                        sh '''docker-compose down'''
+                        sh '''docker-compose down --remove-orphans'''
         
                         // Start containers with Docker Compose
                         sh 'node --version'
-                        sh 'docker-compose -f docker-compose.yml up -d'
+                        sh 'docker-compose -f docker-compose.yml up -d --force-recreate'
                     }
                 }
             }
