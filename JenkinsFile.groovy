@@ -92,8 +92,8 @@ pipeline{
             steps {
                 script {
                         // Tag and push backend and frontend images
-                        sh "docker tag gpt-pipeline-backend rahulsinghpilkh/devpipeline-backend:latest"
-                        sh "docker tag gpt-pipeline-frontend rahulsinghpilkh/devpipeline-frontend:latest"
+                        sh "docker tag ${PROJECT_NAME}_backend rahulsinghpilkh/devpipeline-backend:latest"
+                        sh "docker tag ${PROJECT_NAME}_frontend rahulsinghpilkh/devpipeline-frontend:latest"
                         
                         sh "docker push rahulsinghpilkh/devpipeline-backend:latest"
                         sh "docker push rahulsinghpilkh/devpipeline-frontend:latest"
